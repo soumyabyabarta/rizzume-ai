@@ -9,7 +9,10 @@ const ResumeData = require('../models/ResumeData');
 router.post('/upload', uploadMiddleware, async (req, res) => {
     try {
         if (!req.file) {
-            return res.status(400).json({ success: false, error: "Where's the file tho? 🧐" });
+            return res.status(400).json({ 
+                success: false, 
+                error: "Where's the file tho? 🧐" 
+            });
         }
 
         // 1. Create form data to send to Python ML Service
@@ -30,24 +33,25 @@ router.post('/upload', uploadMiddleware, async (req, res) => {
             },
         });
 
-        const extractedText = pythonResponse.data.data.content;
-        const mlAnalysis = pythonResponse.data.data.ml_analysis;
+        const extractedText = pythonResponse.data?.data?.content;
+        const mlAnalysis = pythonResponse.data?.data?.ml_analysis;
         
-        console.log("🔥 PYTHON SAYS:", JSON.stringify(mlAnalysis, null, 2));
+        console.log("[AI Engine] Extracted Data Received Successfully.");
 
-        
         if (!extractedText) {
-            return res.status(400).json({ success: false, error: "Could not read text from this resume. Is it an image?" });
+            return res.status(400).json({ 
+                success: false, 
+                error: "Could not read text from this resume. Is it a scanned image?" 
+            });
         }
 
-        // 3. Save the extracted text to MongoDB (Auto-deletes in 24h)
+        // 3. Save the extracted text to MongoDB
         const newResumeEntry = new ResumeData({
             userId: 'anonymous', 
             parsedText: extractedText,
             atsScore: mlAnalysis ? mlAnalysis.ats_score : 0 
         });
 
-        // 👇 THIS WAS THE MISSING LINE! 👇
         const savedResume = await newResumeEntry.save();
 
         // 4. Send success response back to frontend
@@ -64,10 +68,16 @@ router.post('/upload', uploadMiddleware, async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error communicating with ML Service:", error.message);
+        console.error("[Backend Error] ML Service Communication Failed:", error.message);
+        
+        // Detailed error logging for debugging
+        if (error.response) {
+            console.error("Python API Error Response:", error.response.data);
+        }
+
         res.status(500).json({ 
             success: false, 
-            error: "Our AI brain is currently taking a nap. Try again later! 💤" 
+            error: "Our AI brain is currently taking a nap or overloaded. Try again in a minute! 💤" 
         });
     }
 });
