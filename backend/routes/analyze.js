@@ -24,7 +24,7 @@ router.post('/upload', uploadMiddleware, async (req, res) => {
         formData.append('job_description', targetJob);
 
         // 2. Call the Python FastAPI Service
-        const pythonResponse = await axios.post('http://127.0.0.1:8000/api/extract', formData, {
+        const pythonResponse = await axios.post('https://rizzume-ml-service.onrender.com/api/extract', formData, {
             headers: {
                 ...formData.getHeaders(),
             },
