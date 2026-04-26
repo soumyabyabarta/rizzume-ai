@@ -17,7 +17,7 @@ const Roast = () => {
 
     const fetchRoast = async () => {
       try {
-        const response = await axios.post('http://localhost:5000/api/ai/feedback', {
+        const response = await axios.post('https://rizzume-backend.onrender.com/api/ai/feedback', {
           documentId: parsedData.documentId, jobDescription: parsedData.targetJob, mode: 'roast' 
         });
         setRoastContent(response.data.data);

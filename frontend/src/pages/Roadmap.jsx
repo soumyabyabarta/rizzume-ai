@@ -17,7 +17,7 @@ const Roadmap = () => {
     
     const fetchRoadmap = async () => {
       try {
-        const response = await axios.post('http://localhost:5000/api/ai/roadmap', {
+        const response = await axios.post('https://rizzume-backend.onrender.com/api/ai/roadmap', {
           targetJob: parsedData.targetJob || "Software Engineer",
           missingSkills: parsedData.mlAnalysis?.missing_skills || []
         }, { timeout: 60000 });
